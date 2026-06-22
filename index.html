@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luya 名片生成器 · 内部名片工具</title>
+<meta name="description" content="Luya 内部名片生成工具 — 录入信息，实时预览，一键导出含出血的印刷 PDF。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@1,500;1,600&family=Noto+Sans+SC:wght@400;500;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  input{font-family:inherit}
+  ::placeholder{color:#a9b2a3}
+  body{font-family:'Source Sans 3','Noto Sans SC',sans-serif;color:#26352a}
+
+  .scroll::-webkit-scrollbar{width:9px}
+  .scroll::-webkit-scrollbar-thumb{background:rgba(47,125,51,.22);border-radius:9px}
+
+  .app-shell{height:100vh;display:flex;flex-direction:column;overflow:hidden;background:var(--bg,#EAE8DD)}
+
+  header.bar{flex:none;height:66px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 26px;background:var(--header,#FBFAF4);border-bottom:1px solid var(--headerBorder,rgba(47,125,51,.13))}
+
+  .seg{display:inline-flex;gap:3px;padding:4px;background:var(--segTrack,#E3E0D2);border-radius:9px}
+  .seg button{padding:7px 15px;border:none;border-radius:7px;cursor:pointer;white-space:nowrap;font:600 13px/1 'Noto Sans SC',sans-serif;transition:all .15s;background:transparent;color:var(--segText,#5a6b50)}
+  .seg button.active{background:#2f7d33;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.22)}
+
+  .btn-export{display:flex;align-items:center;gap:8px;padding:10px 18px;border:none;border-radius:9px;background:#2f7d33;color:#fff;font:700 13px/1 'Noto Sans SC',sans-serif;cursor:pointer;box-shadow:0 3px 10px rgba(47,125,51,.32);transition:background .15s}
+  .btn-export:hover{background:#286b2b}
+
+  main.work{flex:1;display:flex;overflow:hidden}
+
+  section.panel{flex:none;width:444px;height:100%;overflow-y:auto;background:var(--panel,#FBFAF4);border-right:1px solid var(--border,rgba(47,125,51,.14));padding:30px 30px 60px}
+  .sec-title{display:flex;align-items:center;gap:9px;margin:0 0 16px}
+  .sec-title span.bar{width:5px;height:15px;background:#2f7d33;border-radius:3px}
+  .sec-title span.txt{font:700 13px/1 'Noto Sans SC',sans-serif;letter-spacing:.04em;color:var(--sectionTitle,#2C5F2D)}
+  .row{display:flex;gap:14px;margin-bottom:16px}
+  .field{margin-bottom:16px}
+  .field.flex{flex:1;margin-bottom:0}
+  label.fl{display:block;font:600 12px/1 'Noto Sans SC',sans-serif;color:var(--label,#46604a);margin:0 0 7px}
+  label.fl .opt{color:var(--muted,#7a8470);font-weight:500}
+  input.fi{width:100%;padding:11px 13px;border:1px solid var(--border,rgba(47,125,51,.18));border-radius:9px;background:var(--input,#fff);font:500 14px/1.3 'Source Sans 3','Noto Sans SC',sans-serif;color:#26352a;outline:none;transition:border-color .15s,box-shadow .15s}
+  input.fi:focus{border-color:#2f7d33;box-shadow:0 0 0 3px rgba(47,125,51,.13)}
+  .hint{margin:22px 0 0;font:500 12px/1.6 'Noto Sans SC',sans-serif;color:var(--muted,#7a8470)}
+
+  section.canvas{flex:1;height:100%;overflow-y:auto;background:var(--canvas,#E4E1D4);padding:42px 44px 64px;display:flex;flex-direction:column;align-items:center;gap:30px}
+  .card-cap{font:600 11px/1 'Source Sans 3',sans-serif;letter-spacing:.2em;color:var(--muted,#7a8470);margin:0 0 12px}
+  .card{width:470px;height:269px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"),#F4F2E8;border-radius:9px;border:1px solid rgba(47,125,51,.09);box-shadow:0 14px 36px rgba(30,50,25,.17),0 2px 6px rgba(0,0,0,.05)}
+  .card.front{display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .card.back{display:flex;padding:24px 26px;gap:14px}
+  .footer-note{font:500 12px/1.5 'Noto Sans SC',sans-serif;color:var(--muted,#7a8470);text-align:center;max-width:470px}
+
+  .b-info{flex:1.25;min-width:0;display:flex;flex-direction:column}
+  .b-name{font:700 20px/1.2 'Source Sans 3','Noto Sans SC',sans-serif;color:#2C5F2D}
+  .b-title{margin-top:4px;font:500 12.5px/1.35 'Source Sans 3','Noto Sans SC',sans-serif;color:#4a6149}
+  .b-dept{margin-top:2px;font:500 11.5px/1.3 'Source Sans 3','Noto Sans SC',sans-serif;color:#7a8470}
+  .b-rule{width:138px;height:2px;background:#2f7d33;margin:13px 0 14px}
+  .b-lines{display:flex;flex-direction:column;gap:10px}
+  .b-line{display:flex;align-items:center;gap:9px}
+  .b-line span{font:500 12.5px/1.3 'Source Sans 3','Noto Sans SC',sans-serif;color:#33503a}
+  .b-side{width:152px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .b-caption{margin-top:4px;font:italic 500 10px/1.25 'Lora',serif;color:#3b7d39;text-align:center}
+
+  .tagline{margin-top:18px;font:italic 600 16px/1.3 'Lora',serif;color:#3b7d39}
+
+  @media print{
+    @page{ size:94.9mm 56.8mm; margin:0 }
+    html,body{background:#fff !important}
+    .app-shell{display:none !important}
+    .print-root{display:block !important}
+  }
+  @media screen{ .print-root{display:none} }
+
+  @media (max-width:980px){
+    .app-shell{height:auto;overflow:visible}
+    main.work{flex-direction:column;overflow:visible}
+    section.panel{width:100%;height:auto;overflow:visible}
+    section.canvas{overflow:visible}
+    header.bar{flex-wrap:wrap;height:auto;padding:12px 16px;gap:10px}
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell" id="shell">
+  <header class="bar">
+    <div style="display:flex;align-items:center;gap:14px;min-width:0">
+      <img src="assets/luya-logo.png" alt="Luya" style="height:26px;width:auto;display:block">
+      <div style="width:1px;height:28px;background:var(--headerBorder,rgba(47,125,51,.18))"></div>
+      <div style="line-height:1.15">
+        <div style="font:700 16px/1.1 'Noto Sans SC',sans-serif;color:var(--headerText,#2C5F2D)">名片生成器</div>
+        <div style="font:500 11.5px/1.2 'Source Sans 3',sans-serif;color:var(--muted,#7a8470);letter-spacing:.02em">Luya · 内部名片工具</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div class="seg" id="segStyle">
+        <button data-style="paper">纸感</button>
+        <button data-style="minimal">简洁</button>
+        <button data-style="brand">品牌</button>
+      </div>
+      <div class="seg" id="segLang">
+        <button data-lang="zh">中文名片</button>
+        <button data-lang="en">English</button>
+      </div>
+      <button class="btn-export" id="btnExport">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        导出印刷 PDF
+      </button>
+    </div>
+  </header>
+
+  <main class="work">
+    <section class="panel scroll">
+      <div class="sec-title"><span class="bar"></span><span class="txt">基本信息</span></div>
+
+      <div class="row">
+        <div class="field flex">
+          <label class="fl">姓名（中文）</label>
+          <input class="fi" data-field="nameZh" placeholder="王春俊">
+        </div>
+        <div class="field flex">
+          <label class="fl">Name (EN)</label>
+          <input class="fi" data-field="nameEn" placeholder="Chunjun (Francisco) Wang">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field flex">
+          <label class="fl">职位（中文）</label>
+          <input class="fi" data-field="titleZh" placeholder="联合创始人 兼 CEO">
+        </div>
+        <div class="field flex">
+          <label class="fl">Title (EN)</label>
+          <input class="fi" data-field="titleEn" placeholder="Co-Founder &amp; CEO">
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:26px">
+        <label class="fl">部门 Department<span class="opt"> · 选填</span></label>
+        <input class="fi" data-field="dept" placeholder="如：研发部 / R&amp;D">
+      </div>
+
+      <div class="sec-title"><span class="bar"></span><span class="txt">联系方式</span></div>
+
+      <div class="field">
+        <label class="fl">电话 Phone</label>
+        <input class="fi" data-field="phone" placeholder="415 996 4799">
+      </div>
+      <div class="field">
+        <label class="fl">邮箱 Email</label>
+        <input class="fi" data-field="email" placeholder="francisco@luyaxyz.com">
+      </div>
+      <div class="field">
+        <label class="fl">地址 Address</label>
+        <input class="fi" data-field="address" placeholder="12 Bellaire Dr., Princeton, NJ 08540">
+      </div>
+      <div class="field" style="margin-bottom:8px">
+        <label class="fl">网址 Website</label>
+        <input class="fi" data-field="website" placeholder="www.luyaxyz.com">
+      </div>
+
+      <p class="hint">切换右上角语言可分别生成中文 / 英文名片；点击「导出印刷 PDF」生成含出血的正反两页文件（在打印对话框中选择「另存为 PDF」）。</p>
+    </section>
+
+    <section class="canvas scroll">
+      <div>
+        <div class="card-cap">正面 · FRONT</div>
+        <div class="card front">
+          <img src="assets/luya-logo.png" alt="Luya" style="width:202px;height:auto;display:block">
+          <div class="tagline">Cultivating a Better Life, Naturally.</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card-cap">背面 · BACK</div>
+        <div class="card back">
+          <div class="b-info">
+            <div class="b-name" id="pvName"></div>
+            <div class="b-title" id="pvTitle"></div>
+            <div class="b-dept" id="pvDept"></div>
+            <div class="b-rule"></div>
+            <div class="b-lines">
+              <div class="b-line" data-line="phone"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span id="pvPhone"></span></div>
+              <div class="b-line" data-line="address"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span id="pvAddress"></span></div>
+              <div class="b-line" data-line="email"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg><span id="pvEmail"></span></div>
+              <div class="b-line" data-line="website"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="pvWebsite"></span></div>
+            </div>
+          </div>
+          <div class="b-side">
+            <img src="assets/grow-machine.png" alt="" style="width:140px;height:auto;display:block;opacity:.92">
+            <div class="b-caption" id="pvCaption"></div>
+            <img src="assets/luya-logo.png" alt="Luya" style="width:54px;height:auto;display:block;margin-top:10px">
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-note">标准美式名片 89×51mm · 含 3mm 出血 · 导出后可直接送印刷</div>
+    </section>
+  </main>
+</div>
+
+<!-- 打印 / PDF 输出（含出血 94.9×56.8mm） -->
+<div class="print-root">
+  <div style="width:94.9mm;height:56.8mm;box-sizing:border-box;background:#F4F2E8;display:flex;flex-direction:column;align-items:center;justify-content:center;page-break-after:always">
+    <img src="assets/luya-logo.png" alt="Luya" style="width:48mm;height:auto">
+    <div style="margin-top:5mm;font:italic 600 4mm/1.3 'Lora',serif;color:#3b7d39">Cultivating a Better Life, Naturally.</div>
+  </div>
+  <div style="width:94.9mm;height:56.8mm;box-sizing:border-box;background:#F4F2E8;display:flex;padding:7mm 8mm;gap:4mm">
+    <div style="flex:1.25;display:flex;flex-direction:column">
+      <div style="font:700 5mm/1.2 'Source Sans 3','Noto Sans SC',sans-serif;color:#2C5F2D" id="prName"></div>
+      <div style="margin-top:1mm;font:500 3mm/1.35 'Source Sans 3','Noto Sans SC',sans-serif;color:#4a6149" id="prTitle"></div>
+      <div style="margin-top:.6mm;font:500 2.7mm/1.3 'Source Sans 3','Noto Sans SC',sans-serif;color:#7a8470" id="prDept"></div>
+      <div style="width:34mm;height:.6mm;background:#2f7d33;margin:3.2mm 0 3.4mm"></div>
+      <div style="display:flex;flex-direction:column;gap:2.4mm">
+        <div style="display:flex;align-items:center;gap:2.2mm" data-line="phone"><svg width="3.4mm" height="3.4mm" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span style="font:500 3mm/1.3 'Source Sans 3','Noto Sans SC',sans-serif;color:#33503a" id="prPhone"></span></div>
+        <div style="display:flex;align-items:center;gap:2.2mm" data-line="address"><svg width="3.4mm" height="3.4mm" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="font:500 3mm/1.3 'Source Sans 3','Noto Sans SC',sans-serif;color:#33503a" id="prAddress"></span></div>
+        <div style="display:flex;align-items:center;gap:2.2mm" data-line="email"><svg width="3.4mm" height="3.4mm" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg><span style="font:500 3mm/1.3 'Source Sans 3','Noto Sans SC',sans-serif;color:#33503a" id="prEmail"></span></div>
+        <div style="display:flex;align-items:center;gap:2.2mm" data-line="website"><svg width="3.4mm" height="3.4mm" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span style="font:500 3mm/1.3 'Source Sans 3','Noto Sans SC',sans-serif;color:#33503a" id="prWebsite"></span></div>
+      </div>
+    </div>
+    <div style="width:36mm;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center">
+      <img src="assets/grow-machine.png" alt="" style="width:34mm;height:auto;opacity:.92">
+      <div style="margin-top:1mm;font:italic 500 2.4mm/1.25 'Lora',serif;color:#3b7d39;text-align:center" id="prCaption"></div>
+      <img src="assets/luya-logo.png" alt="Luya" style="width:14mm;height:auto;margin-top:2mm">
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var DEFAULTS = {
+    nameZh:'王春俊', nameEn:'Chunjun (Francisco) Wang',
+    titleZh:'联合创始人 兼 首席执行官', titleEn:'Co-Founder & CEO',
+    dept:'',
+    phone:'415 996 4799', email:'francisco@luyaxyz.com',
+    address:'12 Bellaire Dr., Princeton, NJ 08540', website:'www.luyaxyz.com',
+    lang:'zh', style:'paper'
+  };
+
+  var THEMES = {
+    paper:{bg:'#EAE8DD',panel:'#FBFAF4',header:'#FBFAF4',headerText:'#2C5F2D',headerBorder:'rgba(47,125,51,.13)',canvas:'#E4E1D4',border:'rgba(47,125,51,.17)',input:'#ffffff',label:'#46604a',muted:'#7a8470',segTrack:'#E3E0D2',segText:'#5a6b50',sectionTitle:'#2C5F2D'},
+    minimal:{bg:'#F5F6F4',panel:'#FFFFFF',header:'#FFFFFF',headerText:'#1F3A22',headerBorder:'#E6E8E3',canvas:'#EDEFEC',border:'#E0E3DD',input:'#FFFFFF',label:'#4a5a4c',muted:'#8a9184',segTrack:'#EDEFEC',segText:'#5c6b5c',sectionTitle:'#1F3A22'},
+    brand:{bg:'#15331A',panel:'#FBFAF4',header:'#1C4622',headerText:'#EFEDE0',headerBorder:'rgba(255,255,255,.14)',canvas:'#1C4622',border:'rgba(47,125,51,.2)',input:'#FFFFFF',label:'#46604a',muted:'#7a8470',segTrack:'rgba(255,255,255,.92)',segText:'#46604a',sectionTitle:'#2C5F2D'}
+  };
+
+  var STORE_KEY = 'luya-card-v1';
+  var state = Object.assign({}, DEFAULTS);
+  try {
+    var saved = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+    Object.assign(state, saved);
+  } catch(e){}
+
+  var shell = document.getElementById('shell');
+
+  function applyTheme(){
+    var t = THEMES[state.style] || THEMES.paper;
+    var map = {bg:t.bg,panel:t.panel,header:t.header,headerText:t.headerText,headerBorder:t.headerBorder,canvas:t.canvas,border:t.border,input:t.input,label:t.label,muted:t.muted,segTrack:t.segTrack,segText:t.segText,sectionTitle:t.sectionTitle};
+    for (var k in map){ shell.style.setProperty('--'+k, map[k]); }
+  }
+
+  function setText(id, val){
+    var el = document.getElementById(id);
+    if (el) el.textContent = val || '';
+  }
+
+  // show/hide a contact line (both preview and print) when the value is empty
+  function setLine(field, val){
+    var els = document.querySelectorAll('[data-line="'+field+'"]');
+    for (var i=0;i<els.length;i++){ els[i].style.display = val ? '' : 'none'; }
+  }
+
+  function render(){
+    var zh = state.lang === 'zh';
+    var name  = zh ? (state.nameZh || DEFAULTS.nameZh)   : (state.nameEn || DEFAULTS.nameEn);
+    var title = zh ? state.titleZh : state.titleEn;
+    var caption = zh ? 'AI 智能微菜苗种植机' : 'AI-Powered Microgreens Grow Machine';
+
+    // preview
+    setText('pvName', name);
+    setText('pvTitle', title); document.getElementById('pvTitle').style.display = title ? '' : 'none';
+    setText('pvDept', state.dept); document.getElementById('pvDept').style.display = state.dept ? '' : 'none';
+    setText('pvPhone', state.phone);   setLine('phone', state.phone);
+    setText('pvAddress', state.address); setLine('address', state.address);
+    setText('pvEmail', state.email);   setLine('email', state.email);
+    setText('pvWebsite', state.website); setLine('website', state.website);
+    setText('pvCaption', caption);
+
+    // print mirror
+    setText('prName', name);
+    setText('prTitle', title); document.getElementById('prTitle').style.display = title ? '' : 'none';
+    setText('prDept', state.dept); document.getElementById('prDept').style.display = state.dept ? '' : 'none';
+    setText('prPhone', state.phone);
+    setText('prAddress', state.address);
+    setText('prEmail', state.email);
+    setText('prWebsite', state.website);
+    setText('prCaption', caption);
+
+    // segmented buttons
+    syncSeg('segStyle', 'style', state.style);
+    syncSeg('segLang', 'lang', state.lang);
+    applyTheme();
+
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch(e){}
+  }
+
+  function syncSeg(containerId, attr, value){
+    var btns = document.getElementById(containerId).querySelectorAll('button');
+    for (var i=0;i<btns.length;i++){
+      btns[i].classList.toggle('active', btns[i].dataset[attr] === value);
+    }
+  }
+
+  // wire inputs
+  var inputs = document.querySelectorAll('input.fi');
+  for (var i=0;i<inputs.length;i++){
+    (function(input){
+      var f = input.dataset.field;
+      if (state[f]) input.value = state[f];
+      input.addEventListener('input', function(){ state[f] = input.value; render(); });
+    })(inputs[i]);
+  }
+
+  // wire segmented controls
+  document.getElementById('segStyle').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if (!b) return;
+    state.style = b.dataset.style; render();
+  });
+  document.getElementById('segLang').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if (!b) return;
+    state.lang = b.dataset.lang; render();
+  });
+
+  document.getElementById('btnExport').addEventListener('click', function(){ window.print(); });
+
+  render();
+})();
+</script>
+</body>
+</html>
