@@ -55,10 +55,12 @@
   .b-name{font:700 20px/1.2 'Source Sans 3','Noto Sans SC',sans-serif;color:#2C5F2D}
   .b-title{margin-top:4px;font:500 12.5px/1.35 'Source Sans 3','Noto Sans SC',sans-serif;color:#4a6149}
   .b-dept{margin-top:2px;font:500 11.5px/1.3 'Source Sans 3','Noto Sans SC',sans-serif;color:#7a8470}
+  .b-company{margin-top:5px;font:600 12px/1.35 'Source Sans 3','Noto Sans SC',sans-serif;color:#2f7d33}
   .b-rule{width:138px;height:2px;background:#2f7d33;margin:13px 0 14px}
   .b-lines{display:flex;flex-direction:column;gap:10px}
   .b-line{display:flex;align-items:center;gap:9px}
   .b-line span{font:500 12.5px/1.3 'Source Sans 3','Noto Sans SC',sans-serif;color:#33503a}
+  .b-geo{color:#2f7d33;font-weight:700;margin-right:5px}
   .b-side{width:152px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center}
   .b-caption{margin-top:4px;font:italic 500 10px/1.25 'Lora',serif;color:#3b7d39;text-align:center}
 
@@ -137,6 +139,17 @@
         </div>
       </div>
 
+      <div class="row">
+        <div class="field flex">
+          <label class="fl">公司（中文）</label>
+          <input class="fi" data-field="companyZh" placeholder="绿芽创新（深圳）科技有限公司">
+        </div>
+        <div class="field flex">
+          <label class="fl">Company (EN)</label>
+          <input class="fi" data-field="companyEn" placeholder="Luya Innovation (Shenzhen) Technology Co., Ltd.">
+        </div>
+      </div>
+
       <div class="field" style="margin-bottom:26px">
         <label class="fl">部门 Department<span class="opt"> · 选填</span></label>
         <input class="fi" data-field="dept" placeholder="如：研发部 / R&amp;D">
@@ -154,7 +167,7 @@
       </div>
       <div class="field">
         <label class="fl">地址 Address</label>
-        <input class="fi" data-field="address" placeholder="100 Garden Way, Princeton, NJ 08540">
+        <input class="fi" data-field="addressCn" placeholder="广东省深圳市留仙洞路8号光峰科技总部大厦2110">
       </div>
       <div class="field" style="margin-bottom:8px">
         <label class="fl">网址 Website</label>
@@ -180,10 +193,11 @@
             <div class="b-name" id="pvName"></div>
             <div class="b-title" id="pvTitle"></div>
             <div class="b-dept" id="pvDept"></div>
+            <div class="b-company" id="pvCompany"></div>
             <div class="b-rule"></div>
             <div class="b-lines">
               <div class="b-line" data-line="phone"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span id="pvPhone"></span></div>
-              <div class="b-line" data-line="address"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span id="pvAddress"></span></div>
+              <div class="b-line" data-line="addressCn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span id="pvAddressCn"></span></div>
               <div class="b-line" data-line="email"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg><span id="pvEmail"></span></div>
               <div class="b-line" data-line="website"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="pvWebsite"></span></div>
             </div>
@@ -212,10 +226,11 @@
       <div style="font:700 4.6mm/1.15 'Source Sans 3','Noto Sans SC',sans-serif;color:#2C5F2D" id="prName"></div>
       <div style="margin-top:.8mm;font:500 2.8mm/1.3 'Source Sans 3','Noto Sans SC',sans-serif;color:#4a6149" id="prTitle"></div>
       <div style="margin-top:.5mm;font:500 2.5mm/1.3 'Source Sans 3','Noto Sans SC',sans-serif;color:#7a8470" id="prDept"></div>
+      <div style="margin-top:1mm;font:600 2.6mm/1.35 'Source Sans 3','Noto Sans SC',sans-serif;color:#2f7d33" id="prCompany"></div>
       <div style="width:30mm;height:.5mm;background:#2f7d33;margin:2.4mm 0 2.6mm"></div>
       <div style="display:flex;flex-direction:column;gap:1.8mm">
         <div style="display:flex;align-items:flex-start;gap:2mm" data-line="phone"><svg width="3mm" height="3mm" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:.2mm"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span style="font:500 2.7mm/1.25 'Source Sans 3','Noto Sans SC',sans-serif;color:#33503a" id="prPhone"></span></div>
-        <div style="display:flex;align-items:flex-start;gap:2mm" data-line="address"><svg width="3mm" height="3mm" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:.2mm"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="font:500 2.7mm/1.25 'Source Sans 3','Noto Sans SC',sans-serif;color:#33503a" id="prAddress"></span></div>
+        <div style="display:flex;align-items:flex-start;gap:2mm" data-line="addressCn"><svg width="3mm" height="3mm" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:.2mm"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="font:500 2.7mm/1.25 'Source Sans 3','Noto Sans SC',sans-serif;color:#33503a" id="prAddressCn"></span></div>
         <div style="display:flex;align-items:flex-start;gap:2mm" data-line="email"><svg width="3mm" height="3mm" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:.2mm"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg><span style="font:500 2.7mm/1.25 'Source Sans 3','Noto Sans SC',sans-serif;color:#33503a" id="prEmail"></span></div>
         <div style="display:flex;align-items:flex-start;gap:2mm" data-line="website"><svg width="3mm" height="3mm" viewBox="0 0 24 24" fill="none" stroke="#2f7d33" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:.2mm"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span style="font:500 2.7mm/1.25 'Source Sans 3','Noto Sans SC',sans-serif;color:#33503a" id="prWebsite"></span></div>
       </div>
@@ -235,9 +250,11 @@
   var DEFAULTS = {
     nameZh:'林思源', nameEn:'Siyuan Lin',
     titleZh:'市场总监', titleEn:'Marketing Director',
+    companyZh:'绿芽创新（深圳）科技有限公司', companyEn:'Luya Innovation (Shenzhen) Technology Co., Ltd.',
     dept:'',
     phone:'609 555 0142', email:'siyuan.lin@luyaxyz.com',
-    address:'100 Garden Way, Princeton, NJ 08540', website:'www.luyaxyz.com',
+    addressCn:'广东省深圳市留仙洞路8号光峰科技总部大厦2110',
+    website:'www.luyaxyz.com',
     lang:'zh', style:'paper'
   };
 
@@ -277,14 +294,16 @@
     var zh = state.lang === 'zh';
     var name  = zh ? (state.nameZh || DEFAULTS.nameZh)   : (state.nameEn || DEFAULTS.nameEn);
     var title = zh ? state.titleZh : state.titleEn;
+    var company = zh ? (state.companyZh || DEFAULTS.companyZh) : (state.companyEn || DEFAULTS.companyEn);
     var caption = zh ? 'AI 智能微菜苗种植机' : 'AI-Powered Microgreens Grow Machine';
 
     // preview
     setText('pvName', name);
     setText('pvTitle', title); document.getElementById('pvTitle').style.display = title ? '' : 'none';
     setText('pvDept', state.dept); document.getElementById('pvDept').style.display = state.dept ? '' : 'none';
+    setText('pvCompany', company); document.getElementById('pvCompany').style.display = company ? '' : 'none';
     setText('pvPhone', state.phone);   setLine('phone', state.phone);
-    setText('pvAddress', state.address); setLine('address', state.address);
+    setText('pvAddressCn', state.addressCn); setLine('addressCn', state.addressCn);
     setText('pvEmail', state.email);   setLine('email', state.email);
     setText('pvWebsite', state.website); setLine('website', state.website);
     setText('pvCaption', caption);
@@ -293,8 +312,9 @@
     setText('prName', name);
     setText('prTitle', title); document.getElementById('prTitle').style.display = title ? '' : 'none';
     setText('prDept', state.dept); document.getElementById('prDept').style.display = state.dept ? '' : 'none';
+    setText('prCompany', company); document.getElementById('prCompany').style.display = company ? '' : 'none';
     setText('prPhone', state.phone);
-    setText('prAddress', state.address);
+    setText('prAddressCn', state.addressCn);
     setText('prEmail', state.email);
     setText('prWebsite', state.website);
     setText('prCaption', caption);
